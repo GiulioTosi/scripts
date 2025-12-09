@@ -35,7 +35,8 @@ async def run_bot(messages, chat_id):
 def new_ip_entry():
     return {
             "first_access": None,
-            "uris": []
+            "uris": [],
+            "status": ''
     }
 
 def get_ipinfo(ip):
@@ -49,7 +50,6 @@ def get_ipinfo(ip):
         data = res.json()
         city = data.get('city','Error retrieving city')
         region = data.get('region','Error retrieving region')
-
 
         return f"{city}, {region}"
     except requests.exceptions.Timeout:
@@ -95,7 +95,9 @@ while True:
                 ip = el['request']['client_ip']
                 ts = el['ts']
                 uri = el['request']['uri']
+                status = el['status']
                 dic[ip]['uris'].append(uri)
+                dic[ip]['status'] = status
                 if dic[ip]['first_access'] is None:
                     dic[ip]['first_access'] = ts 
             except json.JSONDecodeError:
@@ -104,7 +106,7 @@ while True:
         messages = []
         for ip,infos in dic.items():
             ip_details = get_ipinfo(ip)
-            message = f"Ip {ip} ({ip_details}) accessed at {infos['first_access']} at uris: {infos['uris']}\n" 
+            message = f"Ip {ip} ({ip_details}) accessed at {infos['first_access']} at uris: {infos['uris']}, and returned status {infos['status']}\n" 
             messages.append(message)
             # print(message)
         message_size = sum(sys.getsizeof(m) for m in messages)
