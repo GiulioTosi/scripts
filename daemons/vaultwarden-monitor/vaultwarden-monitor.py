@@ -21,8 +21,12 @@ bot = Bot(token=TELEGRAM_BOT_TOKEN)
 
 # bot send message
 async def send_message(text, chat_id):
-    async with bot:
-        await bot.send_message(text=text, chat_id=chat_id) 
+    try:
+        async with bot:
+            await bot.send_message(text=text, chat_id=chat_id)
+    except Exception as e:
+        print(e)
+        return
 
 async def run_bot(messages, chat_id):
     text = ' '.join(messages)
@@ -49,15 +53,15 @@ def get_ipinfo(ip):
 
         return f"{city}, {region}"
     except requests.exceptions.Timeout:
-        return f"Request timed out"
+        return f"Request timed out for {ip}"
     except requests.exceptions.HTTPError as e:
-        return f"HTTP error {e}"
+        return f"HTTP error {e} for {ip}"
     except requests.exceptions.RequestException as e:
-        return f"Network error {e}"
+        return f"Network error {e} for {ip}"
     except (json.JSONDecodeError,KeyError):
-        return f"Invalid reponse format"
+        return f"Invalid reponse format for {ip}"
     except Exception as e:
-        return f"Unexpected exception {e}"
+        return f"Unexpected exception {e} for {ip}"
 
 # check if user has privileges
 if os.geteuid() != 0:
