@@ -89,23 +89,17 @@ def get_ipinfo(ip):
     except Exception as e:
         return f"Unexpected exception {e} for {ip}"
 
-# check if user has privileges
-if os.geteuid() != 0:
-    print("This script must be executed as root")
-    exit(1)
-
-# go to log directory
-os.chdir('/var/log/caddy/')
-
-# log file
-filename = 'vaultwarden-access.log'
-
-old_size = 0
-last_pos = 0
-
 ip_cache = defaultdict(new_cache_entry)
 
 async def main():
+    # go to log directory
+    os.chdir('/var/log/caddy/')
+
+    # log file
+    filename = 'vaultwarden-access.log'
+
+    old_size = 0
+    last_pos = 0
 
     # check if user has privileges
     if os.geteuid() != 0:
@@ -160,4 +154,4 @@ async def main():
 
         time.sleep(4)
 
-asyncio.run(main)
+asyncio.run(main())
