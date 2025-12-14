@@ -19,6 +19,13 @@ TELEGRAM_BOT_TOKEN = os.getenv("MY_TOKEN")
 CHAT_ID = os.getenv("CHAT_ID")
 bot = Bot(token=TELEGRAM_BOT_TOKEN)
 
+watched_uris = [
+        '/',
+        '/api/config',
+        '/identity/connect/token',
+        '/api/sync'
+]
+
 # bot send message
 async def send_message(text, chat_id):
     try:
@@ -71,7 +78,7 @@ if os.geteuid() != 0:
 # go to log directory
 os.chdir('/var/log/caddy/')
 
-#log file
+# log file
 filename = 'vaultwarden-access.log'
 
 old_size = 0
@@ -91,10 +98,13 @@ while True:
 
         for line in lines:
             try:
-                el = json.loads(line)
+                el = json.loads(line) 
+                uri = el['request']['uri']
+                print(uri)
+                if uri not in watched_uris:
+                    continue
                 ip = el['request']['client_ip']
                 ts = el['ts']
-                uri = el['request']['uri']
                 status = el['status']
                 dic[ip]['uris'].append(uri)
                 dic[ip]['status'] = status
@@ -106,15 +116,18 @@ while True:
         messages = []
         for ip,infos in dic.items():
             ip_details = get_ipinfo(ip)
-            message = f"Ip {ip} ({ip_details}) accessed at {infos['first_access']} at uris: {infos['uris']}, and returned status {infos['status']}\n" 
+            message = f"Ip {ip} ({ip_details}) accessed at {infos['first_access']} and returned status {infos['status']}.\n" 
+            if len(infos['uris']) > 0:
+                message += f"Accessed uris: {infos['uris']}."
+            else:
+                message += "Unknown uris were accessed"
+
             messages.append(message)
-            # print(message)
+
         message_size = sum(sys.getsizeof(m) for m in messages)
         if message_size > 4096:
             messages=messages[-1:]
             messages.append('Other IPs were detected but message was too long. Only last acces is being displayed')
         asyncio.run(run_bot(messages,CHAT_ID))
-    #else:
-    #   print("Nothing new this round")
 
     time.sleep(4)
