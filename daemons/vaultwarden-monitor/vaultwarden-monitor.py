@@ -19,6 +19,13 @@ TELEGRAM_BOT_TOKEN = os.getenv("MY_TOKEN")
 CHAT_ID = os.getenv("CHAT_ID")
 bot = Bot(token=TELEGRAM_BOT_TOKEN)
 
+# go to log directory
+os.chdir('/var/log/caddy/')
+# log file
+filename = 'vaultwarden-access.log'
+old_size = 0
+last_pos = 0
+
 watched_uris = [
         '/',
         '/api/config',
@@ -46,7 +53,16 @@ def new_ip_entry():
             "status": ''
     }
 
+def new_cache_entry():
+    return {
+        'city': '',
+        'region': ''
+    }
+
 def get_ipinfo(ip):
+    if ip in ip_cache:
+        return ip_cache[ip]
+
     try:
         res = requests.get(f'https://ipinfo.io/{ip}',timeout=5)
     
@@ -57,6 +73,9 @@ def get_ipinfo(ip):
         data = res.json()
         city = data.get('city','Error retrieving city')
         region = data.get('region','Error retrieving region')
+
+        ip_cache[ip]['city'] = city
+        ip_cache[ip]['region'] = region
 
         return f"{city}, {region}"
     except requests.exceptions.Timeout:
@@ -84,50 +103,61 @@ filename = 'vaultwarden-access.log'
 old_size = 0
 last_pos = 0
 
-while True:
-    cur_size = os.path.getsize(filename)
+ip_cache = defaultdict(new_cache_entry)
 
-    if cur_size != old_size and cur_size > 0:
-        old_size = cur_size
-        with open(filename,'r') as f:
-            f.seek(last_pos)
-            lines = f.readlines()
-            last_pos= f.tell()
-            
-        dic = defaultdict(new_ip_entry)
+async def main():
 
-        for line in lines:
-            try:
-                el = json.loads(line) 
-                uri = el['request']['uri']
-                print(uri)
-                if uri not in watched_uris:
+    # check if user has privileges
+    if os.geteuid() != 0:
+        print("This script must be executed as root")
+        exit(1)
+    
+    while True:
+        cur_size = os.path.getsize(filename)
+
+        if cur_size != old_size and cur_size > 0:
+            old_size = cur_size
+            with open(filename,'r') as f:
+                f.seek(last_pos)
+                lines = f.readlines()
+                last_pos= f.tell()
+
+            dic = defaultdict(new_ip_entry)
+
+            for line in lines:
+                try:
+                    el = json.loads(line) 
+                    uri = el['request']['uri']
+                    print(uri)
+                    if uri not in watched_uris:
+                        continue
+                    ip = el['request']['client_ip']
+                    ts = el['ts']
+                    status = el['status']
+                    dic[ip]['uris'].append(uri)
+                    dic[ip]['status'] = status
+                    if dic[ip]['first_access'] is None:
+                        dic[ip]['first_access'] = ts 
+                except json.JSONDecodeError:
                     continue
-                ip = el['request']['client_ip']
-                ts = el['ts']
-                status = el['status']
-                dic[ip]['uris'].append(uri)
-                dic[ip]['status'] = status
-                if dic[ip]['first_access'] is None:
-                    dic[ip]['first_access'] = ts 
-            except json.JSONDecodeError:
-                continue
-        
-        messages = []
-        for ip,infos in dic.items():
-            ip_details = get_ipinfo(ip)
-            message = f"Ip {ip} ({ip_details}) accessed at {infos['first_access']} and returned status {infos['status']}.\n" 
-            if len(infos['uris']) > 0:
-                message += f"Accessed uris: {infos['uris']}."
-            else:
-                message += "Unknown uris were accessed"
+                
+            messages = []
+            for ip,infos in dic.items():
+                ip_details = get_ipinfo(ip)
+                message = f"Ip {ip} ({ip_details}) accessed at {infos['first_access']} and returned status {infos['status']}.\n" 
+                if len(infos['uris']) > 0:
+                    message += f"Accessed uris: {infos['uris']}."
+                else:
+                    message += "Unknown uris were accessed"
 
-            messages.append(message)
+                messages.append(message)
 
-        message_size = sum(sys.getsizeof(m) for m in messages)
-        if message_size > 4096:
-            messages=messages[-1:]
-            messages.append('Other IPs were detected but message was too long. Only last acces is being displayed')
-        asyncio.run(run_bot(messages,CHAT_ID))
+            message_size = sum(sys.getsizeof(m) for m in messages)
+            if message_size > 4096:
+                messages=messages[-1:]
+                messages.append('Other IPs were detected but message was too long. Only last acces is being displayed')
+            await run_bot(messages,CHAT_ID)
 
-    time.sleep(4)
+        time.sleep(4)
+
+asyncio.run(main)
