@@ -13,8 +13,8 @@ TELEGRAM_BOT_TOKEN = os.getenv("MY_TOKEN")
 CHAT_ID = os.getenv("CHAT_ID")
 bot = Bot(token=TELEGRAM_BOT_TOKEN)
 
-LOG_DIR = '/var/log/caddy/'
-LOG_FILE = 'access.log'
+LOG_DIR = os.getenv("LOG_DIR")
+LOG_FILE = os.getenv("LOG_FILE")
 LOG_PATH = os.path.join(LOG_DIR,LOG_FILE)
 
 last_pos = 0
