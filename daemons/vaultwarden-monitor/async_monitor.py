@@ -38,7 +38,6 @@ class LogHandler(FileSystemEventHandler):
                 self.queue.put_nowait,
                 None
             )
-    
 
 # bot send message
 async def send_message(text, chat_id):
@@ -167,11 +166,9 @@ def init_cache():
     ip_cache = defaultdict(new_cache_entry)
 
 async def main():
-    # check if user has privileges
-    if os.geteuid() != 0:
-        print("This script must be executed as root")
-        exit(1)
 
+    init_cache()
+    
     loop = asyncio.get_running_loop()
     queue = asyncio.Queue()
 
@@ -179,8 +176,6 @@ async def main():
     observer = Observer()
     observer.schedule(event_handler,path=LOG_DIR,recursive=False)
     observer.start()
-
-    init_cache()
 
     try:
         await process_log(queue)
