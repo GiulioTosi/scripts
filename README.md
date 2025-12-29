@@ -31,7 +31,6 @@ The `daemons` directory includes systemd unit files, timers and executable:
 In `osquery` are provided the configuration files for the osquery daemon, an SQL-based monitoring service. See `osquery/osquery` for further details.
 
 The `services` directory contains configuration files for self-hosted services, such as:
-- immich;
 - vaultwarden;
 - filebrowser;
 - prometheus;
