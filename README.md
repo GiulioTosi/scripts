@@ -7,35 +7,38 @@ Currently, I'm mantaining it, and evolving it to a more cybersecurity-focused la
 ```
 .
 ├── daemons
-├── fake_rm
-├── hide
-├── osquery
+│   ├── network-watchdog
+│   │   ├── network-watchdog.service
+│   │   ├── network-watchdog.sh
+│   │   └── network-watchdog.timer
+│   ├── update-services
+│   │   ├── update-filebrowser.sh
+│   │   ├── update_services.service
+│   │   ├── update_services.sh
+│   │   └── update_services.timer
+│   └── update-system
+│       ├── update-system.service
+│       └── update-system.timer
 ├── README.md
-├── remove_spaces
-├── services
-└── system-backups
+└── services
+    ├── osquery
+    │   ├── osquery.conf.example
+    │   └── osquery.flags.example
+    └── wireguard
+        ├── client
+        │   └── wg0.conf.example
+        └── server
+            ├── wg0.conf.example
+            └── wg1.conf.example
 ```
-
-In the root directory there are a few easy scripts to make life simpler:
-- `fake_rm`: moves files and directories to /tmp so that you can recover in case of mistake;
-- `hide`: hides elements specified as arguments;
-- `remove_spaces`: removes spaces in file names;
-To use them daily, the best way is to add an alias in your home directory 
 
 The `daemons` directory includes systemd unit files, timers and executable:
 - `update-system`: provides a simple service to update the system;
 - `update-services`: contains scripts to update my services, such as immich, filebrowser and vaultwarden;
-- `vaultwarden-monitor`: is a tiny monitoring service that alerts via a telegram, using unofficial python-telegram-bot APIs for new accesses to vaultwarden;
 - `network-watchdog`: my home wifi service is very unstable, my server may become unreachable if it fails to reconnect after a network issue. This services looks for connection problems and restart the networking service
 
-In `osquery` are provided the configuration files for the osquery daemon, an SQL-based monitoring service. See `osquery/osquery` for further details.
-
 The `services` directory contains configuration files for self-hosted services, such as:
-- vaultwarden;
-- filebrowser;
-- prometheus;
-
-The scripts in `system-backups` were created to make a backup of Debian 12 files and configurations before upgrading to Debian 13 (Trixie).
-The backups are made as suggested in the Debian documentation for upgrading the system.  
-
-Please note that the configurations and scripts provided in this repository may need to be changed and adapted to your personal environment. 
+- `osquery`: SQL-based system-monitoring tool; in this directory are provided configuration and flag file for the osquery daemon. For further information, please visit the official website (osquery.io) or repository (`osquery/osquery`).
+- `Wireguard`: here you can find example configuration files for both wireguard VPN client and server. In the server subdirectory two configuration files are proposed: the first for contains rules to only accept packets directed only to the server itself; the second one is more complex, and permits traffic forwarding;
+ 
+Please note that the configurations and scripts provided in this repository need to be changed and adapted to your personal environment. 

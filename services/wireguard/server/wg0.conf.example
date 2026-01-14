@@ -2,7 +2,7 @@
 # iptables rules only accept packets inside the same machine where wireguard is hosted
 
 [Interface]
-Address = 10.10.0.1/24i # wireguard interface ip
+Address = 10.10.0.1/24 # wireguard interface ip
 
 # iptables rules when setting up the wg0 interface
 PostUp = iptables -A INPUT -i eth0 -p udp --dport 51820 -j ACCEPT # accept udp on port 51820 where wireguard is listening

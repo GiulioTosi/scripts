@@ -1,13 +1,13 @@
 #!/bin/bash
 
-set -e
+set -euo pipefail
 
 function update(){
 	# stop filebrowser
 	sudo systemctl stop filebrowser
 	
 	# get asset uri
-	asset=$(curl --silent https://api.github.com/repos/filebrowser/filebrowser/releases/latest | grep browser_download_url | grep linux-amd64 | cut -f 4 -d "\"")
+	asset=$(curl -s https://api.github.com/repos/filebrowser/filebrowser/releases/latest | jq -r '.assets[] | select(.name | contains("linux-amd64")) | .browser_download_url')
         
 	# work in temporary directory
         cd /tmp
@@ -34,7 +34,7 @@ function update(){
 }
 
 
-check_version=$(curl --silent https://api.github.com/repos/filebrowser/filebrowser/releases/latest | grep tag_name | cut -f 4 -d \")
+check_version=$(curl --silent https://api.github.com/repos/filebrowser/filebrowser/releases/latest | jq '.tag_name')
 
 current_version=$(filebrowser version | cut -f 3 -d " " | cut -f 1 -d \/)
 

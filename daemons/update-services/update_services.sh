@@ -1,22 +1,20 @@
 #!/bin/bash
 
-# I should create an environment variable for the working dir, or pass it as an argument
+WORKDIR="{$WORKDIR:-/srv/services}"
 
 function update(){
-	echo "AGGIORNAMENTO IN $PWD"
-	docker compose pull && docker compose up -d
-	docker image prune -f
+	echo -e "UPDATING $1 ...:\n"
+	docker compose -f "$1" pull && docker compose -f "$1" up -d
 	echo -e "=================\n"
 }
 
-workingdir="/your/working/dir"
-cd $workingdir
+files=$(find $WORKDIR -type f -name "*compose.y*ml")
 
-for i in *
+for file in files
 do
-	cd $i || exit
-	update
-	cd ..
+	update $file
 done
+
+docker image prune -f
 
 bash /usr/local/bin/update-filebrowser.sh

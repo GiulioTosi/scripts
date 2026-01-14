@@ -10,6 +10,7 @@ PostUp = iptables -A INPUT -i wg1 -j ACCEPT # accept packets from wireguard inte
 PostUp = iptables -A FORWARD -i wg1 -o eth0 -j ACCEPT # accept traffic from wireguard (wg1) to the outside  
 PostUp = iptables -A FORWARD -i eth0 -o wg1 -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT # accept only response from the outside to wireguard
 PostUp = iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE # nat packets, msquerade IP so that it's possible to receive a response
+PostUp = sysctl -w net.ipv4.ip_forward = 1 # enable ip_forward in order to allow system to forward packets, acting as a router
 
 # clean rules when interface is down
 PostDown = iptables -D INPUT -i eth0 -p udp --dport 51820 -j ACCEPT
@@ -17,6 +18,7 @@ PostDown = iptables -D INPUT -i wg1 -j ACCEPT
 PostDown = iptables -D FORWARD -i wg1 -o eth0 -j ACCEPT
 PostDown = iptables -D FORWARD -i eth0 -o wg1 -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
 PostDown = iptables -t nat -D POSTROUTING -o eth0 -j MASQUERADE
+PostUp = sysctl -w net.ipv4.ip_forward = 0 # disable ip_forward
 
 ListenPort = 51820
 PrivateKey = [SERVER-PRIVATE-KEY] 
