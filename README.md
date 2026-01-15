@@ -7,10 +7,6 @@ Currently, I'm mantaining it, and evolving it to a more cybersecurity-focused la
 ```
 .
 ├── daemons
-│   ├── network-watchdog
-│   │   ├── network-watchdog.service
-│   │   ├── network-watchdog.sh
-│   │   └── network-watchdog.timer
 │   ├── update-services
 │   │   ├── update-filebrowser.sh
 │   │   ├── update_services.service
@@ -35,7 +31,6 @@ Currently, I'm mantaining it, and evolving it to a more cybersecurity-focused la
 The `daemons` directory includes systemd unit files, timers and executable:
 - `update-system`: provides a simple service to update the system;
 - `update-services`: contains scripts to update my services, such as immich, filebrowser and vaultwarden;
-- `network-watchdog`: my home wifi service is very unstable, my server may become unreachable if it fails to reconnect after a network issue. This services looks for connection problems and restart the networking service
 
 The `services` directory contains configuration files for self-hosted services, such as:
 - `osquery`: SQL-based system-monitoring tool; in this directory are provided configuration and flag file for the osquery daemon. For further information, please visit the official website (osquery.io) or repository (`osquery/osquery`).
