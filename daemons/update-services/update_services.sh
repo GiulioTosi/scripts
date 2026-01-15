@@ -1,6 +1,8 @@
 #!/bin/bash
 
-WORKDIR="{$WORKDIR:-/srv/services}"
+set -e
+
+WORKDIR="${WORKDIR:-/srv/services}"
 
 function update(){
 	echo -e "UPDATING $1 ...:\n"
@@ -10,7 +12,7 @@ function update(){
 
 files=$(find $WORKDIR -type f -name "*compose.y*ml")
 
-for file in files
+for file in $files
 do
 	update $file
 done
