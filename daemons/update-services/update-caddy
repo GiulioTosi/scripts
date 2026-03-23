@@ -1,0 +1,50 @@
+#!/bin/bash
+
+set -euo pipefail
+
+function update(){
+	# stop filebrowser
+	sudo systemctl stop caddy
+	
+	# get asset uri
+	asset=$(curl -s https://api.github.com/repos/caddyserver/caddy/releases/latest   | jq '.assets[] | select(.name | endswith("linux_amd64.tar.gz")) | .browser_download_url' | tr -d \")
+        
+	# work in temporary directory
+        cd /tmp
+	
+	# create temp directory for new files
+	newdir="caddy-$(date +"%H%M%S%d%m%y")"
+	mkdir $newdir
+	cd $newdir	
+
+	# download assets
+	wget $asset 	
+
+	# extract files
+	tar xzf "caddy_2.11.2_linux_amd64.tar.gz"  
+	
+	# replace executable
+	sudo mv caddy /usr/bin/caddy
+	
+	# restart filebrowser
+	sudo systemctl start caddy
+
+	echo "Upgrade complete"
+	echo "New version: $(caddy version)"
+}
+
+
+check_version=$(curl --silent https://api.github.com/repos/caddyserver/caddy/releases/latest | jq '.tag_name' | tr -d \")
+
+current_version=$(caddy version | cut -f 1 -d " ")
+
+echo current: $current_version
+
+echo check new: $check_version
+
+if [ $current_version = $check_version ];then
+	echo "Caddy is up-to-date"
+else
+	echo "Found a more recent version: $check_version"
+	update
+fi
