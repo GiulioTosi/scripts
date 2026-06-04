@@ -20,7 +20,7 @@
 
 - name: Copy .env file
   ansible.builtin.copy:
-    src: immich/env
+    src: immich/env.example
     dest: /srv/services/immich-app/.env
     mode: '0755'
 
