@@ -1,0 +1,8 @@
+- hosts: homeserver
+  become: true 
+  roles:
+    - common # basic packages and stuff (e.g., python, curl...)
+    - ssh # copy ssh-key, disable password login using regex
+    - caddy # install caddy
+    - filebrowser # install and configure filebrowser
+    - services # copy docker services configuration files and start them

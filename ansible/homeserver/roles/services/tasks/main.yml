@@ -1,0 +1,52 @@
+- name: Create services' working directory
+  ansible.builtin.file:
+    path: /srv/services
+    state: directory
+    mode: '0755'
+
+
+# <=== IMMICH ===>
+- name: Create immich working directory
+  ansible.builtin.file:
+    path: /srv/services/immich-app
+    state: directory
+    mode: '0755'
+
+- name: Download immich docker-compose file
+  ansible.builtin.get_url:
+    url: https://github.com/immich-app/immich/releases/latest/download/docker-compose.yml
+    dest: /srv/services/immich-app/docker-compose.yml
+    mode: '0755'
+
+- name: Copy .env file
+  ansible.builtin.copy:
+    src: immich/env
+    dest: /srv/services/immich-app/.env
+    mode: '0755'
+
+- name: Create and start immich
+  community.docker.docker_compose_v2:
+    project_src: /srv/services/immich-app/
+
+# <=== VAULTWARDEN ===>
+- name: Create vaultwarden working directory
+  ansible.builtin.file:
+    path: /srv/services/vaultwarden
+    state: directory
+    mode: '0755'
+
+- name: Copy vaultwarden compose file
+  ansible.builtin.copy:
+    src: vaultwarden/compose.yaml
+    dest: /srv/services/vaultwarden/docker-compose.yml
+    mode: '0755'
+
+- name: Copy vaultwarden environment file
+  ansible.builtin.copy:
+    src: vaultwarden/env.example
+    dest: /srv/services/vaultwarden/.env
+    mode: '0755'
+
+- name: Start vaultwarden
+  community.docker.docker_compose_v2:
+    project_src: /srv/services/vaultwarden/

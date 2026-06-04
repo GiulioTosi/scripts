@@ -1,0 +1,18 @@
+- name: Set authorized key
+  ansible.posix.authorized_key:
+    user: vagrant
+    state: present
+    key: "{{ lookup('file', 'roles/ssh/files/public_key') }}"
+
+- name: Disable ssh password login
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^\s*#?\s*PasswordAuthentication\s+' 
+    line: 'PasswordAuthentication no'
+    state: present
+    insertafter: EOF
+
+- name: restart ssh
+  ansible.builtin.systemd_service:
+    state: restarted
+    name: ssh

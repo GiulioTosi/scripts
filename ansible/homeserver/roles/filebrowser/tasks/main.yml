@@ -1,0 +1,35 @@
+- name: Create filebrowser directory
+  ansible.builtin.file:
+    path: /etc/filebrowser/
+    state: directory
+    mode: '0755'
+
+- name: Copy filebrowser configuration
+  ansible.builtin.copy:
+    src: filebrowser/filebrowser.json
+    dest: /etc/filebrowser/filebrowser.json
+    mode: '0755'
+
+- name: Download filebrowser
+  ansible.builtin.get_url:
+    url: https://raw.githubusercontent.com/filebrowser/get/master/get.sh
+    dest: /home/vagrant/get.sh
+    mode: '0755'
+    
+- name: Install filebrowser
+  ansible.builtin.shell: /home/vagrant/get.sh
+  args:
+    executable: /bin/bash
+    creates: '/usr/local/bin/filebrowser'
+
+- name: Copy filebrowser daemon
+  ansible.builtin.copy:
+    src: filebrowser/filebrowser.service
+    dest: /etc/systemd/system/filebrowser.service
+    mode: '0755'
+
+- name: Start filebrowser daemon and issue daemon-reload
+  ansible.builtin.systemd_service:
+    state: restarted
+    daemon_reload: true
+    name: filebrowser

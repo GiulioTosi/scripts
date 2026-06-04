@@ -1,2 +1,2 @@
-!system-backups/*.sh
 .venv
+.main.yaml.old

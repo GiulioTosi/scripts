@@ -1,0 +1,21 @@
+- name: Install caddy
+  ansible.builtin.apt:
+    name: caddy
+    state: present
+
+- name: Copy example Caddyfile
+  ansible.builtin.copy:
+    src: Caddyfile
+    dest: /etc/caddy/Caddyfile
+
+- name: Change Caddy domain
+  lineinfile:
+    path: /etc/caddy/Caddyfile
+    regex: '^mydomain'
+    line: "{{ user_domain }} {"
+
+- name: Restart caddy to apply changes
+  ansible.builtin.systemd_service:
+    state: restarted
+    daemon_reload: true
+    name: caddy
