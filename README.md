@@ -11,19 +11,20 @@ Currently, I'm maintaining it, and periodically adding monitoring and automation
 ├── ansible
 │   └── homeserver
 ├── daemons
+│   ├── nas-backup
 │   ├── update-services
 │   └── update-system
+├── log-aggregation
 ├── README.md
 └── services
     ├── osquery
     └── wireguard
-        ├── client
-        └── server
 ```
 
 The `daemons` directory includes systemd unit files, timers and executable:
 - `update-system`: provides a simple service to update the system;
 - `update-services`: contains scripts to update my services, such as immich, filebrowser and vaultwarden;
+- `nas-backup`: in this directory there is a script, with the associated systemd service and timer, to backup some important folders of my server on an external HDD;
 
 The `services` directory contains configuration files for self-hosted services, such as:
 - `osquery`: SQL-based system-monitoring tool; in this directory are provided configuration and flag file for the osquery daemon. For further information, please refer to the official documentation (osquery.readthedocs.io/) or repository (`osquery/osquery`).
