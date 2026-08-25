@@ -1,0 +1,7 @@
+[Unit]
+Description=Backups NAS files
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/bash /usr/local/bin/nas-backup.sh
+TimeoutStartSec=infinity
