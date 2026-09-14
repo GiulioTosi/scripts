@@ -18,5 +18,3 @@ do
 done
 
 docker image prune -f
-
-bash /usr/local/bin/update-filebrowser.sh
