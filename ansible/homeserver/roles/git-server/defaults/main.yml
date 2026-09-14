@@ -1,0 +1,9 @@
+git_user: "git"
+git_group: "git"
+git_home: "/srv/git"
+git_shell: "/usr/bin/git-shell"
+
+# Public key(s) allowed to connect to git server
+git_authorized_keys: 
+  - "ssh-ed25519 AAAA... name@client"
+

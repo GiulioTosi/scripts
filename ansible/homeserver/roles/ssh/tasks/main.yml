@@ -1,9 +1,9 @@
-- name: Set authorized key
+- name: Copy authorized ssh keys
   ansible.posix.authorized_key:
-    user: vagrant
+    user: "{{ user }}"
     state: present
-    key: "{{ lookup('file', 'roles/ssh/files/public_key') }}"
-
+    key: "{{ authorized_key }}"
+ 
 - name: Disable ssh password login
   lineinfile:
     path: /etc/ssh/sshd_config
@@ -11,8 +11,11 @@
     line: 'PasswordAuthentication no'
     state: present
     insertafter: EOF
-
-- name: restart ssh
-  ansible.builtin.systemd_service:
-    state: restarted
-    name: ssh
+  notify: Restart ssh
+ 
+- name: Validate sshd configuration
+  ansible.builtin.command: sshd -t
+  changed_when: false
+ 
+- name: Flush handlers
+  ansible.builtin.meta: flush_handlers

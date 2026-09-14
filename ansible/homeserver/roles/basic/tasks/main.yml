@@ -10,11 +10,13 @@
 - name: Install required system packages
   apt:
     name:
+      - openssh-server
       - apt-transport-https
       - ca-certificates
       - curl
       - software-properties-common
       - virtualenv
+      - git
     state: latest
     update_cache: true
 

@@ -1,2 +1,4 @@
 .venv
+vagrant
 .main.yaml.old
+log-aggregation

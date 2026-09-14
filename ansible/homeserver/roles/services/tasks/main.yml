@@ -20,9 +20,9 @@
 
 - name: Copy .env file
   ansible.builtin.copy:
-    src: immich/env.example
+    src: immich/.env.example
     dest: /srv/services/immich-app/.env
-    mode: '0755'
+    mode: '0644'
 
 - name: Create and start immich
   community.docker.docker_compose_v2:
@@ -43,9 +43,9 @@
 
 - name: Copy vaultwarden environment file
   ansible.builtin.copy:
-    src: vaultwarden/env.example
+    src: vaultwarden/.env.example
     dest: /srv/services/vaultwarden/.env
-    mode: '0755'
+    mode: '0644'
 
 - name: Start vaultwarden
   community.docker.docker_compose_v2:

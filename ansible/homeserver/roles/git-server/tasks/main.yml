@@ -1,0 +1,32 @@
+- name: Create git group
+  ansible.builtin.group:
+    name: "{{ git_group }}"
+    state: present
+    system: yes
+
+- name: Create git user with restricted git-shell
+  ansible.builtin.user:
+    name: "{{ git_user }}"
+    group: "{{ git_group }}"
+    home: "{{ git_home }}"
+    shell: "{{ git_shell }}"
+    system: yes
+    create_home: yes
+    state: present
+
+- name: Ensure correct permissions on git home directory
+  ansible.builtin.file:
+    path: "{{ git_home }}"
+    state: directory
+    owner: "{{ git_user }}"
+    group: "{{ git_group }}"
+    mode: '0750'
+
+- name: Copy authorized ssh keys
+  ansible.posix.authorized_key:
+    user: "{{ git_user }}"
+    state: present
+    key: "{{ item }}"
+  loop: "{{ git_authorized_keys }}"
+
+# Repo initialization is left to the user
