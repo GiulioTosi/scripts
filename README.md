@@ -17,7 +17,7 @@ Currently, I'm maintaining it, and periodically adding monitoring and automation
 ├── README.md
 ├── services
 │   ├── osquery
-│   └── wireguard
+└── └── wireguard
 ```
 
 The `daemons` directory includes systemd unit files, timers and executable:
